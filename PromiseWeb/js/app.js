@@ -15,7 +15,12 @@
     //define product model
     var Contact = Backbone.Model.extend({
         defaults: {
-            photo: "/img/placeholder.png"
+            photo: "/img/placeholder.png",
+            name: "",
+            address: "",
+            tel: "",
+            email: "",
+            type: ""
         }
     });
 
@@ -33,6 +38,22 @@
         render: function () {
             this.$el.html(this.template(this.model.toJSON()));
             return this;
+        },
+
+        events: {
+            "click button.delete": "deleteContact"
+        },
+
+        deleteContact: function () {
+            var removedType = this.model.get("type").toLowerCase();
+
+            this.model.destroy();
+
+            this.remove(); 
+
+            if (_.indexOf(directory.getTypes(), removedType) === -1) {
+                directory.$el.find("#filter select").children("[value='" + removedType + "']").remove();
+            }
         }
     });
 
@@ -49,7 +70,11 @@
             // BInder metoden filterTypes til this.filterByType - trigges via  this.trigger("change:filterTypes");
             this.on("change:filterType", this.filterByType, this);
             this.collection.on("reset", this.render, this); // resetter collection via thhis.render linje 54. Sletter all contacta og appender igen de valgte
-       
+            this.collection.on("add", this.renderContact, this);
+
+            this.collection.on("remove", this.removeContact, this);
+
+            this.collection.on("deleteContact", this.deleteContact, this);
         },
 
         render: function () {
@@ -90,13 +115,50 @@
 
         //add ui events
         events: {
-            "change #filter select": "setFilter"
+            "change #filter select": "setFilter",
+            "click #showForm": "showForm"
+        
+        },
+        removeContact: function (removedModel) {
+            var removed = removedModel.attributes;
+
+            if (removed.photo === "/img/placeholder.png") {
+                delete removed.photo;
+            }
+
+            _.each(contacts, function (contact) {
+                if (_.isEqual(contact, removed)) {
+                    contacts.splice(_.indexOf(contacts, contact), 1);
+                }
+            });
+        },
+        showForm: function () {
+            this.$el.find("#addContact").slideToggle();
         },
 
         //Set filter property and fire change event
         setFilter: function (e) {
             this.filterType = e.currentTarget.value;
             this.trigger("change:filterType");
+        },
+        addContact: function (e) {
+            e.preventDefault();
+
+            var formData = {};
+            $("#addContact").children("input").each(function (i, el) {
+                if ($(el).val() !== "") {
+                    formData[el.id] = $(el).val();
+                }
+            });
+
+            contacts.push(formData);
+
+            if (_.indexOf(this.getTypes(), formData.type) === -1) {
+                this.collection.add(new Contact(formData));
+                this.$el.find("#filter").find("select").remove().end().append(this.createSelect());
+            } else {
+                this.collection.add(new Contact(formData));
+            }
         },
 
         //filter the view
@@ -138,10 +200,10 @@
     //add routing
     var ContactsRouter = Backbone.Router.extend({
         routes: {
-            "filter/:type": "urlFilter"
+            "filter/type": "urlFilters"
         },
 
-        urlFilter: function (type) {
+        urlFilters: function (type) {
             directory.filterType = type;
             directory.trigger("change:filterType"); //filterTypes ??
         }
@@ -158,7 +220,7 @@
     Backbone.history.on('route', function () {
         // Do your stuff here
        // this.setSelected(this.filterType);
-        alert("Triggered ")
+        alert("Triggered ");
      
     });
     Backbone.history.start();
