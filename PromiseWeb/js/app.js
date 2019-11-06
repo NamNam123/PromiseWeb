@@ -34,6 +34,7 @@
         tagName: "article",
         className: "contact-container",
         template: _.template($("#contactTemplate").html()),
+        editTemplate: _.template($("#contactEditTemplate").html()),
 
         render: function () {
             this.$el.html(this.template(this.model.toJSON()));
@@ -41,8 +42,14 @@
         },
 
         events: {
-            "click button.delete": "deleteContact"
+            "click button.delete": "deleteContact",
+            "click button.edit": "editContact",
+            "change select.type": "addType",
+            "click button.save": "saveEdits",
+            "click button.cancel": "cancelEdit"
         },
+
+
 
         deleteContact: function () {
             var removedType = this.model.get("type").toLowerCase();
