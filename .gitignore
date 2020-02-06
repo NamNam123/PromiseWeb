@@ -261,7 +261,6 @@ __pycache__/
 *.pyc
 
 # ignore a single file
-Web.config
 
 # ignore a file types
 
