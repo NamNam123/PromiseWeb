@@ -262,5 +262,5 @@ __pycache__/
 
 # ignore a single file
 
-# ignore a file type
+# ignore a file types
 *.config
