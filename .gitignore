@@ -264,5 +264,4 @@ __pycache__/
 Web.config
 
 # ignore a file types
-Web.config
 *.txt
