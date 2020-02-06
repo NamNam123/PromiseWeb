@@ -84,6 +84,7 @@
     <Content Include="js_backup\json2.js" />
     <Content Include="js_backup\underscore-min.js" />
     <Content Include="Style.css" />
+    <Content Include="test.txt" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
